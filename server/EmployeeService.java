@@ -6,7 +6,7 @@ import database.EmployeeRepository;
 
 public class EmployeeService {
 
-    // ===========================
+    // // Employee service layer handles employee business operations
     // GET EMPLOYEES
     // ===========================
 
