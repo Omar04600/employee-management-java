@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Employee Management System</title>
+
+</head>
+
+<body>
+
+    <h1>Employee Management System</h1>
+
+
+    <!-- ===========================
+         ADD EMPLOYEE
+         =========================== -->
+
+    <h2>Add Employee</h2>
+
+    <form id="employeeForm">
+
+        <input
+            type="text"
+            id="name"
+            placeholder="Employee Name"
+            required
+        >
+
+        <br><br>
+
+        <input
+            type="text"
+            id="department"
+            placeholder="Department"
+            required
+        >
+
+        <br><br>
+
+        <button type="submit">
+            Add Employee
+        </button>
+
+    </form>
+
+
+    <p id="message"></p>
+
+
+    <!-- ===========================
+         EMPLOYEE TABLE
+         =========================== -->
+
+    <h2>Employees</h2>
+
+    <table border="1">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Name</th>
+
+                <th>Department</th>
+
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody id="employeeTable">
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ===========================
+         JAVASCRIPT
+         =========================== -->
+
+    <script>
+
+
+        // ===========================
+        // LOAD EMPLOYEES
+        // ===========================
+
+        async function loadEmployees() {
+
+            const response = await fetch("/employees");
+
+            const employees = await response.json();
+
+            const table =
+                document.getElementById("employeeTable");
+
+            table.innerHTML = "";
+
+
+            employees.forEach(function(employee) {
+
+                const row =
+                    document.createElement("tr");
+
+
+                row.innerHTML = `
+
+                    <td>${employee.id}</td>
+
+                    <td>${employee.name}</td>
+
+                    <td>${employee.department}</td>
+
+                    <td>
+
+                        <button
+                            onclick="deleteEmployee(${employee.id})"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                `;
+
+
+                table.appendChild(row);
+
+            });
+
+        }
+
+
+        // ===========================
+        // ADD EMPLOYEE
+        // ===========================
+
+        document
+            .getElementById("employeeForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+
+                    // Prevent normal HTML form submission
+
+                    event.preventDefault();
+
+
+                    // Get values from input boxes
+
+                    const name =
+                        document.getElementById("name").value;
+
+
+                    const department =
+                        document.getElementById("department").value;
+
+
+                    // Create employee object
+
+                    const employee = {
+
+                        id: 0,
+
+                        name: name,
+
+                        department: department
+
+                    };
+
+
+                    // Send employee to Java server
+
+                    const response = await fetch(
+                        "/employees",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(employee)
+
+                        }
+                    );
+
+
+                    // Read server response
+
+                    const result =
+                        await response.text();
+
+
+                    // Display message
+
+                    document
+                        .getElementById("message")
+                        .innerText = result;
+
+
+                    // Clear form
+
+                    document
+                        .getElementById("employeeForm")
+                        .reset();
+
+
+                    // Refresh employee table
+
+                    loadEmployees();
+
+                }
+            );
+
+
+        // ===========================
+        // DELETE EMPLOYEE
+        // ===========================
+
+        async function deleteEmployee(id) {
+
+
+            const response = await fetch(
+
+                "/employees/" + id,
+
+                {
+
+                    method: "DELETE"
+
+                }
+
+            );
+
+
+            // Read server response
+
+            const result =
+                await response.text();
+
+
+            // Display message
+
+            document
+                .getElementById("message")
+                .innerText = result;
+
+
+            // Refresh employee table
+
+            loadEmployees();
+
+        }
+
+
+        // ===========================
+        // LOAD EMPLOYEES WHEN PAGE OPENS
+        // ===========================
+
+        loadEmployees();
+
+
+    </script>
+
+</body>
+
+</html>
